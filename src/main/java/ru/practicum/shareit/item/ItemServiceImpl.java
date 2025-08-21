@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.NewItemRequest;
 import ru.practicum.shareit.item.dto.UpdateItemRequest;
-import ru.practicum.shareit.user.UserRepository;
+import ru.practicum.shareit.user.UserRepositoryImpl;
 import ru.practicum.shareit.user.User;
 
 import java.util.List;
@@ -19,12 +19,12 @@ import static ru.practicum.shareit.item.ItemMapper.mapToItemDto;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
 
-    private final ItemRepository itemRepository;
-    private final UserRepository userRepository;
+    private final ItemRepositoryImpl itemRepository;
+    private final UserRepositoryImpl userRepository;
 
     @Autowired
-    public ItemServiceImpl(@Qualifier("itemRepository") ItemRepository itemRepository,
-                           UserRepository userRepository) {
+    public ItemServiceImpl(@Qualifier("itemRepository") ItemRepositoryImpl itemRepository,
+                           UserRepositoryImpl userRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
     }

@@ -18,10 +18,10 @@ import static ru.practicum.shareit.user.UserMapper.mapToUserDto;
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+    private final UserRepositoryImpl userRepository;
 
     @Autowired
-    public UserServiceImpl(@Qualifier("userRepository") UserRepository userRepository) {
+    public UserServiceImpl(@Qualifier("userRepository") UserRepositoryImpl userRepository) {
         this.userRepository = userRepository;
     }
 
