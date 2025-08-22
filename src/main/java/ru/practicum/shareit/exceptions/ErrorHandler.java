@@ -15,7 +15,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFound(final Exception e) {
+    public ErrorResponse handleNotFound(final NotFoundException e) {
         log.debug("Ошибка, объект не найден. {}", e.getMessage());
         return new ErrorResponse(
                 "Ошибка, объект не найден",
@@ -23,7 +23,7 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler({ValidationException.class, MethodArgumentNotValidException.class, HttpMessageNotReadableException.class, MissingRequestHeaderException.class})
+    @ExceptionHandler({ValidationException.class, MethodArgumentNotValidException.class, ConstraintViolationException.class, HttpMessageNotReadableException.class, MissingRequestHeaderException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(final Exception e) {
         log.debug("Ошибка валидации. {}", e.getMessage());
@@ -36,7 +36,10 @@ public class ErrorHandler {
             return new ErrorResponse("Некорректный запрос", "Тело запроса отсутствует");
         } else if (e.getClass() == MissingRequestHeaderException.class) {
             return new ErrorResponse("Некорректный запрос", "Заголовок отсутствует");
-        } else {
+        } else if (e.getClass() == ConstraintViolationException.class) {
+            return new ErrorResponse("Некорректное значение", "Ошибка валидации");
+        }
+        else {
             return new ErrorResponse(
                     "Некорректное значение параметра " + ((MethodArgumentNotValidException) e).getParameter(),
                     e.getMessage()
@@ -55,7 +58,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleServerError(final Throwable e) {
+    public ErrorResponse handleServerError(final Exception e) {
         return new ErrorResponse(
                 "Ошибка",
                 e.getMessage()

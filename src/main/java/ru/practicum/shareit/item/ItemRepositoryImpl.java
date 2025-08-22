@@ -54,10 +54,11 @@ public class ItemRepositoryImpl implements ItemRepository {
     @Qualifier
     public List<Item> searchItems(long userId, String query) {
         if (query != null && !query.isEmpty()) {
+            String queryLower = query.toLowerCase();
             return items.values().stream()
                     .filter(item -> item.getOwner().getId() == userId)
                     .filter(item -> item.getAvailable().equals(Boolean.TRUE))
-                    .filter(item -> item.getName().toLowerCase().contains(query.toLowerCase()) || item.getDescription().toLowerCase().contains(query.toLowerCase()))
+                    .filter(item -> item.getName().toLowerCase().contains(queryLower) || item.getDescription().toLowerCase().contains(queryLower))
                     .toList();
         }
         return Collections.emptyList();
