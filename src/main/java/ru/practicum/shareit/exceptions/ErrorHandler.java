@@ -38,8 +38,7 @@ public class ErrorHandler {
             return new ErrorResponse("Некорректный запрос", "Заголовок отсутствует");
         } else if (e.getClass() == ConstraintViolationException.class) {
             return new ErrorResponse("Некорректное значение", "Ошибка валидации");
-        }
-        else {
+        } else {
             return new ErrorResponse(
                     "Некорректное значение параметра " + ((MethodArgumentNotValidException) e).getParameter(),
                     e.getMessage()
