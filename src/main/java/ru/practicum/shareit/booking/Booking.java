@@ -5,7 +5,6 @@ import lombok.Data;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,10 +14,10 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name="booking_start")
+    @Column(name = "booking_start")
     private LocalDateTime start;
 
-    @Column(name="booking_end")
+    @Column(name = "booking_end")
     private LocalDateTime end;
 
     @ManyToOne(fetch = FetchType.LAZY)
