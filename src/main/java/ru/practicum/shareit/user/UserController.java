@@ -16,9 +16,9 @@ import java.util.List;
 @Validated
 @Slf4j
 public class UserController {
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
-    public UserController(UserServiceImpl userService) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 

@@ -14,55 +14,64 @@ import java.util.List;
 import static ru.practicum.shareit.user.UserMapper.mapToUser;
 import static ru.practicum.shareit.user.UserMapper.mapToUserDto;
 
+@Qualifier("UserDbService")
 @Service
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-    private final UserRepositoryImpl userRepository;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserServiceImpl(@Qualifier("userRepository") UserRepositoryImpl userRepository) {
+    public UserServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-    @Qualifier
+    @Override
     public List<UserDto> findAllUsers() {
-        return userRepository.findAllUsers().stream()
+        return userRepository.findAll().stream()
                 .map(UserMapper::mapToUserDto)
                 .toList();
     }
 
-    @Qualifier
+    @Override
     public UserDto addUser(NewUserRequest request) {
         log.debug("Начинается добавление пользователя по запросу {}", request);
         User user = mapToUser(request);
         log.debug("Запрос на добавление пользователя конвертирован в объект класса User {}", user);
-        user = userRepository.addUser(user);
+        user = userRepository.save(user);
         log.debug("Добавлен пользователь {}", user);
         return mapToUserDto(user);
     }
 
-    @Qualifier
+    @Override
     public UserDto getUserId(Long userId) {
-        return mapToUserDto(userRepository.getUserId(userId));
+        return userRepository.findById(userId)
+                .map(UserMapper::mapToUserDto)
+                .orElseThrow(() -> {
+                    log.warn("Ошибка при поиске пользователя. Пользователь с id={} не найден", userId);
+                    return new NotFoundException("Пользователь с id=" + userId + " не найден");
+                });
     }
 
-    @Qualifier
+    @Override
     public UserDto updateUser(Long userId, UpdateUserRequest request) {
         log.debug("Начинается обновление пользователя по запросу {}", request);
-        User updatedUser = userRepository.updateUser(userId, request);
+        User updatedUser = userRepository.findById(userId)
+                .map(user -> UserMapper.updateUserFields(user, request))
+                .orElseThrow(() -> {
+                    log.warn("Ошибка при обновлении пользователя. Пользователь с id={} не найден", userId);
+                    return new NotFoundException("Пользователь с id=" + userId + " не найден");
+                });
+        log.debug("Запрос на обновление пользователя конвертирован в объект класса User {}", updatedUser);
+        updatedUser = userRepository.save(updatedUser);
         log.debug("Обновлён пользователь {}", updatedUser);
         return mapToUserDto(updatedUser);
     }
 
-    @Qualifier
+    @Override
     public void deleteUser(Long id) {
-        if (userRepository.getUserId(id) == null) {
-            log.warn("Ошибка при запросе удаления пользователя. Пользователь с id={} не найден", id);
-            throw new NotFoundException("Пользователь с id=" + id + " не найден");
-        }
+        userRepository.deleteById(id);
         log.info("Пользователь {} успешно удалён.", id);
-        userRepository.deleteUser(id);
     }
 
 }

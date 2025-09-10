@@ -7,9 +7,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exceptions.CreateValidation;
 import ru.practicum.shareit.exceptions.UpdateValidation;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.NewItemRequest;
-import ru.practicum.shareit.item.dto.UpdateItemRequest;
+import ru.practicum.shareit.item.dto.*;
 
 import java.util.List;
 
@@ -19,9 +17,9 @@ import java.util.List;
 @Slf4j
 public class ItemController {
 
-    private final ItemServiceImpl itemService;
+    private final ItemService itemService;
 
-    public ItemController(ItemServiceImpl itemService) {
+    public ItemController(ItemService itemService) {
         this.itemService = itemService;
     }
 
@@ -35,13 +33,13 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> findAllItems(@Positive @NotNull @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
+    public List<ItemWithCommentDto> findAllItems(@Positive @NotNull @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
         log.info("Запрошен список всех вещей");
         return itemService.findAllItems(userId);
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItemId(@Positive @NotNull @RequestHeader(name = "X-Sharer-User-Id") Long userId,@Positive @PathVariable("itemId") Long itemId) {
+    public ItemWithCommentDto getItemId(@Positive @NotNull @RequestHeader(name = "X-Sharer-User-Id") Long userId,@Positive @PathVariable("itemId") Long itemId) {
         log.info("Запрошена информация о вещи id={}", itemId);
         return itemService.getItemId(userId, itemId);
     }
@@ -59,6 +57,14 @@ public class ItemController {
     public List<ItemDto> searchItems(@RequestHeader(name = "X-Sharer-User-Id") long userId, @RequestParam(name = "text") String query) {
         log.info("Запрошен поиск вещи");
         return itemService.searchItems(userId, query);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@Positive @RequestHeader(name = "X-Sharer-User-Id") long userId,
+                                 @Validated(UpdateValidation.class) @RequestBody NewCommentRequest request,
+                                 @Positive @PathVariable("itemId") long itemId) {
+        log.info("Запрос на добавления комментария");
+        return itemService.addComment(userId, request, itemId);
     }
 
 }
