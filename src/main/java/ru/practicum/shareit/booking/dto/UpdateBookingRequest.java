@@ -8,9 +8,9 @@ import ru.practicum.shareit.exceptions.UpdateValidation;
 public class UpdateBookingRequest {
 
     @NotNull(message = "Id не может быть пустым", groups = UpdateValidation.class)
-    long userId;
+    private long userId;
     @NotNull(message = "Id не может быть пустым", groups = UpdateValidation.class)
-    long bookingId;
+    private long bookingId;
     @NotNull(message = "Статус не может быть пустым", groups = UpdateValidation.class)
-    boolean approved;
+    private boolean approved;
 }

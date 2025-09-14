@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -71,6 +72,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto addItem(NewItemRequest request) {
         log.debug("Начинается добавление вещи по запросу {}", request);
         User user = userRepository.findById(request.getOwnerId())
@@ -105,6 +107,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public ItemDto updateItem(UpdateItemRequest request) {
         Item existingItem = itemRepository.findByIdAndOwnerId(request.getId(), request.getOwnerId())
                 .orElseThrow(() -> new NotFoundException("Вещь не найдена или не принадлежит владельцу"));

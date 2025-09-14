@@ -11,14 +11,14 @@ import java.time.LocalDateTime;
 public class NewBookingRequest {
 
     @NotBlank(message = "id не может быть пустым", groups = CreateValidation.class)
-    Long id;
+    private Long id;
 
     @NotNull(message = "Время начала не может быть null", groups = CreateValidation.class)
-    LocalDateTime start;
+    private LocalDateTime start;
 
     @NotNull(message = "Время окнчания не может быть null", groups = CreateValidation.class)
-    LocalDateTime end;
+    private LocalDateTime end;
 
     @NotNull
-    Long itemId;
+    private Long itemId;
 }

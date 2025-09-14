@@ -11,10 +11,10 @@ import java.time.LocalDateTime;
 @Data
 public class BookingDto {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    Long id;
-    LocalDateTime start;
-    LocalDateTime end;
-    ItemDto item;
-    UserDto booker;
-    BookingStatus status;
+    private Long id;
+    private LocalDateTime start;
+    private LocalDateTime end;
+    private ItemDto item;
+    private UserDto booker;
+    private BookingStatus status;
 }

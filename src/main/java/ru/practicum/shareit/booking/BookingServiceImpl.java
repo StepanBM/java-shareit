@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -40,6 +41,7 @@ public class BookingServiceImpl implements BookingService {
         this.bookingRepository = bookingRepository;
     }
 
+    @Transactional
     public BookingDto addBooking(long userId, NewBookingRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> {
@@ -88,6 +90,7 @@ public class BookingServiceImpl implements BookingService {
                 .toList();
     }
 
+    @Transactional
     public BookingDto updateBooking(long userId, long bookingId, boolean approved) {
         userRepository.findById(userId)
                 .orElseThrow(() -> {

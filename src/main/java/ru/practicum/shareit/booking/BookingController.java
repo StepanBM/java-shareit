@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -16,8 +17,9 @@ import java.util.List;
 @Slf4j
 public class BookingController {
 
-    BookingService bookingService;
+   private final BookingService bookingService;
 
+    @Autowired
     public BookingController(BookingService bookingService) {
         this.bookingService = bookingService;
     }
@@ -47,14 +49,14 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> findAllBooking(@Positive @RequestHeader(name = "X-Sharer-User-Id") long userId,
-                                           @RequestParam(required = false, defaultValue = "ALL") BookingState state) {
+                                           @RequestParam(defaultValue = "ALL") BookingState state) {
         log.info("Запрошен список всех бронирований пользователя с id={}", userId);
         return bookingService.findAllBooking(userId, state);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> findAllBookingOwner(@Positive @RequestHeader("X-Sharer-User-Id") long userId,
-                                                @RequestParam(required = false, defaultValue = "ALL") BookingState state) {
+                                                @RequestParam(defaultValue = "ALL") BookingState state) {
         log.info("Запрошен список бронирований всех вещей пользователя с id={}", userId);
         return bookingService.findAllBookingOwner(userId, state);
     }

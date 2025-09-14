@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,6 +35,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto addUser(NewUserRequest request) {
         log.debug("Начинается добавление пользователя по запросу {}", request);
         User user = mapToUser(request);
@@ -54,6 +56,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto updateUser(Long userId, UpdateUserRequest request) {
         log.debug("Начинается обновление пользователя по запросу {}", request);
         User updatedUser = userRepository.findById(userId)
