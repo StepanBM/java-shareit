@@ -23,7 +23,8 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler({ValidationException.class, MethodArgumentNotValidException.class, ConstraintViolationException.class, HttpMessageNotReadableException.class, MissingRequestHeaderException.class})
+    @ExceptionHandler({ValidationException.class, MethodArgumentNotValidException.class, ConstraintViolationException.class,
+            HttpMessageNotReadableException.class, MissingRequestHeaderException.class, ItemUnavailableException.class, UserNotFoundException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(final Exception e) {
         log.debug("Ошибка валидации. {}", e.getMessage());
@@ -38,6 +39,10 @@ public class ErrorHandler {
             return new ErrorResponse("Некорректный запрос", "Заголовок отсутствует");
         } else if (e.getClass() == ConstraintViolationException.class) {
             return new ErrorResponse("Некорректное значение", "Ошибка валидации");
+        } else if (e.getClass() == ItemUnavailableException.class) {
+            return new ErrorResponse("Некорректное значение", "Вещь недоступна для бронирования");
+        } else if (e.getClass() == UserNotFoundException.class) {
+            return new ErrorResponse("Некорректное значение", "Пользователя нет");
         } else {
             return new ErrorResponse(
                     "Некорректное значение параметра " + ((MethodArgumentNotValidException) e).getParameter(),
