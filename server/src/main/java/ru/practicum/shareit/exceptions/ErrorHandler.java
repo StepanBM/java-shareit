@@ -30,7 +30,7 @@ public class ErrorHandler {
        // log.debug("Ошибка валидации. {}", e.getMessage());
         if (e.getClass() == ValidationException.class) {
             return new ErrorResponse(
-                    "Некорректное значение параметра " , e.getMessage()
+                    "Некорректное значение параметра ", e.getMessage()
             );
         } else if (e.getClass() == HttpMessageNotReadableException.class) {
             return new ErrorResponse("Некорректный запрос", "Тело запроса отсутствует");

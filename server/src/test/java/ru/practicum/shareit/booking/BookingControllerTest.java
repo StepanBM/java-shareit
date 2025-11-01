@@ -174,24 +174,28 @@ public class BookingControllerTest {
         bookingDto1.setStart(LocalDateTime.of(2025, 5, 21, 14, 0));
         bookingDto1.setEnd(LocalDateTime.of(2025, 7, 21, 14, 0));
         bookingDto1.setStatus(BookingStatus.APPROVED);
-        bookingDto1.setItem(new ItemDto(){{
+        bookingDto1.setItem(new ItemDto() {{
             setId(33L); setName("Велосипед"); setDescription("Очень быстрый"); setAvailable(true); setRequestId(75L); setOwnerId(15L);
-        }});
-        bookingDto1.setBooker(new UserDto(){{
+        }}
+        );
+        bookingDto1.setBooker(new UserDto() {{
             setId(43L); setName("Sergey"); setEmail("serg007@mail.com");
-        }});
+        }}
+        );
 
         BookingDto bookingDto2 = new BookingDto();
         bookingDto2.setId(2L);
         bookingDto2.setStart(LocalDateTime.of(2025, 7, 23, 15, 0));
         bookingDto2.setEnd(LocalDateTime.of(2025, 7, 25, 15, 0));
         bookingDto2.setStatus(BookingStatus.WAITING);
-        bookingDto2.setItem(new ItemDto(){{
+        bookingDto2.setItem(new ItemDto() {{
             setId(99L); setName("Отвертка"); setDescription("Крестовая"); setAvailable(true); setRequestId(85L); setOwnerId(21L);
-        }});
-        bookingDto2.setBooker(new UserDto(){{
+        }}
+        );
+        bookingDto2.setBooker(new UserDto() {{
             setId(27L); setName("Anna"); setEmail("anna1877@mail.com");
-        }});
+        }}
+        );
 
         List<BookingDto> bookings = List.of(bookingDto1, bookingDto2);
 
@@ -235,12 +239,14 @@ public class BookingControllerTest {
         bookingDto.setStart(LocalDateTime.of(2025, 5, 21, 14, 0));
         bookingDto.setEnd(LocalDateTime.of(2025, 7, 21, 14, 0));
         bookingDto.setStatus(BookingStatus.APPROVED);
-        bookingDto.setItem(new ItemDto(){{
+        bookingDto.setItem(new ItemDto() {{
             setId(33L); setName("Велосипед"); setDescription("Очень быстрый"); setAvailable(true); setRequestId(75L); setOwnerId(15L);
-        }});
-        bookingDto.setBooker(new UserDto(){{
+        }}
+        );
+        bookingDto.setBooker(new UserDto() {{
             setId(1L); setName("Sergey"); setEmail("serg007@mail.com");
-        }});
+        }}
+        );
 
         Mockito
                 .when(bookingService.findAllBooking(anyLong(), eq(BookingState.CURRENT)))

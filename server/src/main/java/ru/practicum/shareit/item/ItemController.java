@@ -1,7 +1,5 @@
 package ru.practicum.shareit.item;
 
-//import jakarta.validation.constraints.NotNull;
-//import jakarta.validation.constraints.Positive;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +31,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemWithCommentDto> findAllItems( @RequestHeader(name = "X-Sharer-User-Id") Long userId) {
+    public List<ItemWithCommentDto> findAllItems(@RequestHeader(name = "X-Sharer-User-Id") Long userId) {
        // log.info("Запрошен список всех вещей");
         return itemService.findAllItems(userId);
     }
@@ -60,7 +58,7 @@ public class ItemController {
     }
 
     @PostMapping("/{itemId}/comment")
-    public CommentDto addComment( @RequestHeader(name = "X-Sharer-User-Id") long userId,
+    public CommentDto addComment(@RequestHeader(name = "X-Sharer-User-Id") long userId,
                                  @Validated(UpdateValidation.class) @RequestBody NewCommentRequest request,
                                   @PathVariable("itemId") long itemId) {
        // log.info("Запрос на добавления комментария");

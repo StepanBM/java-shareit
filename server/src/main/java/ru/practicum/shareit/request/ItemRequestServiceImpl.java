@@ -2,7 +2,6 @@ package ru.practicum.shareit.request;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -61,7 +60,7 @@ public class ItemRequestServiceImpl implements RequestService {
     }
 
     @Override
-    public List<ItemRequestDto> getRequestsUserId(long userId){
+    public List<ItemRequestDto> getRequestsUserId(long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
 

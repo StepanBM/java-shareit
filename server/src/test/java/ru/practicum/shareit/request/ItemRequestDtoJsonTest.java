@@ -50,7 +50,7 @@ public class ItemRequestDtoJsonTest {
     @Test
     public void deserializeJsonToItemRequestDtoJsonTest() throws Exception {
         String json = """
-                {
+                  {
                   "id": 1,
                   "description": "Нужен цветочный горшок",
                   "created": "2025-04-21T15:00:00",
@@ -97,7 +97,7 @@ public class ItemRequestDtoJsonTest {
     @Test
     public void deserializeJsonToNewItemRequestDtoJsonTest() throws Exception {
         String json = """
-                {
+                  {
                   "requestId": 5,
                   "description": "Срочно нужен паяльник",
                   "created": "2025-04-21T15:00:00"

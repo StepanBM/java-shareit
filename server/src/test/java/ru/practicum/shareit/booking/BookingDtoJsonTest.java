@@ -68,7 +68,7 @@ public class BookingDtoJsonTest {
     @Test
     public void deserializeJsonToBookingDtoJsonTest() throws Exception {
         String json = """
-                {
+                  {
                   "id": 1,
                   "start": "2025-05-21T14:00:00",
                   "end": "2025-07-21T14:00:00",
@@ -124,7 +124,7 @@ public class BookingDtoJsonTest {
     @Test
     public void deserializeJsonToNewBookingRequestJsonTest() throws Exception {
         String json = """
-                {
+                  {
                   "start": "2025-05-21T14:00:00",
                   "end": "2025-07-21T14:00:00",
                   "itemId": 25
@@ -155,7 +155,7 @@ public class BookingDtoJsonTest {
     @Test
     public void deserializeJsonToUpdateBookingRequestJsonTest() throws Exception {
         String json = """
-                {
+                  {
                   "userId": 3,
                   "bookingId": 15,
                   "approved": true
