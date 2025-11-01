@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.dto;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 import ru.practicum.shareit.validation.UpdateValidation;
@@ -9,7 +8,6 @@ import ru.practicum.shareit.validation.UpdateValidation;
 @Data
 public class UpdateUserRequest {
 
-   // @NotBlank(message = "Имя не может быть пустым", groups = UpdateValidation.class)
     @Length(max = 255, message = "Имя пользователя не может привышать длину в 255 символов", groups = UpdateValidation.class)
     private String name;
 
