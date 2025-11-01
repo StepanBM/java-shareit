@@ -110,7 +110,7 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.name").value("Sergey"))
                 .andExpect(jsonPath("$.email").value("ser01@mail.com"));
     }
-    
+
     @Test
     void updateUserTest() throws Exception {
 
