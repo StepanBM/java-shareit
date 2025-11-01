@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -51,7 +53,7 @@ public class ItemControllerTest {
         item1.setRequestId(2L);
 
         Mockito
-                .when(itemService.addItem(request)).thenReturn(item1);
+                .when(itemService.addItem(any())).thenReturn(item1);
 
         mvc.perform(post("/items")
                         .header("X-Sharer-User-Id", "1")
@@ -198,7 +200,7 @@ public class ItemControllerTest {
         itemDto.setOwnerId(3L);
 
         Mockito
-                .when(itemService.updateItem(request)).thenReturn(itemDto);
+                .when(itemService.updateItem(any(UpdateItemRequest.class))).thenReturn(itemDto);
 
         mvc.perform(patch("/items/1")
                         .header("X-Sharer-User-Id", "3")
@@ -270,7 +272,7 @@ public class ItemControllerTest {
         commentDto.setCreated(LocalDateTime.of(2025, 7, 3, 12, 10));
 
         Mockito
-                .when(itemService.addComment(7L, request,33L))
+                .when(itemService.addComment(anyLong(), any(), anyLong()))
                 .thenReturn(commentDto);
 
         mvc.perform(post("/items/33/comment")

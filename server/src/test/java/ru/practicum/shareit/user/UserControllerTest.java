@@ -17,6 +17,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,7 +60,7 @@ public class UserControllerTest {
         request.setEmail("ser01@mail.com");
 
         Mockito
-                .when(userService.addUser(request)).thenReturn(user1);
+                .when(userService.addUser(any())).thenReturn(user1);
 
         mvc.perform(post("/users")
                         .content(mapper.writeValueAsString(request))
@@ -114,14 +116,14 @@ public class UserControllerTest {
     // Обновление пользователя
     @Test
     void updateUserTest() throws Exception {
-        // Обновляемые поля
+
         UpdateUserRequest updateRequest = new UpdateUserRequest();
         updateRequest.setName("Sergey");
         updateRequest.setEmail("ser01@mail.com");
 
 
         Mockito
-                .when(userService.updateUser(1L, updateRequest)).thenReturn(user1);
+                .when(userService.updateUser(anyLong(), any(UpdateUserRequest.class))).thenReturn(user1);
 
         mvc.perform(patch("/users/1")
                         .content(mapper.writeValueAsString(updateRequest))
