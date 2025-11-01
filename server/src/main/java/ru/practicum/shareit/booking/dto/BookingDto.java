@@ -64,4 +64,5 @@ public class BookingDto {
     public void setStatus(BookingStatus status) {
         this.status = status;
     }
+    
 }
