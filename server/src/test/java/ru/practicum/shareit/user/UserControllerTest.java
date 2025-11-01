@@ -133,7 +133,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.email").value("ser01@mail.com"));
     }
 
-    // Удаление пользователя
     @Test
     void deleteUserTest() throws Exception {
 
