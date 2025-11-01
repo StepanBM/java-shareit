@@ -45,7 +45,7 @@ public class ItemCommentDtoJsonTest {
     @Test
     public void deserializeCommentDtoJsonTest() throws Exception {
         String json = """
-              {
+            {
               "id": 1,
               "text": "Класс",
               "authorName": "Варя",
@@ -99,7 +99,7 @@ public class ItemCommentDtoJsonTest {
     @Test
     public void deserializeItemWithCommentDtoJsonTest() throws Exception {
         String json = """
-              {
+            {
               "id": 25,
               "name": "Зарядка",
               "description": "Быстрая",

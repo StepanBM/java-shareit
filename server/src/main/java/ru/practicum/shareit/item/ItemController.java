@@ -37,7 +37,7 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemWithCommentDto getItemId( @RequestHeader(name = "X-Sharer-User-Id") Long userId, @PathVariable("itemId") Long itemId) {
+    public ItemWithCommentDto getItemId(@RequestHeader(name = "X-Sharer-User-Id") Long userId, @PathVariable("itemId") Long itemId) {
        // log.info("Запрошена информация о вещи id={}", itemId);
         return itemService.getItemId(userId, itemId);
     }

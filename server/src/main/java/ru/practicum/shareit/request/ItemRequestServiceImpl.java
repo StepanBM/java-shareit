@@ -68,6 +68,7 @@ public class ItemRequestServiceImpl implements RequestService {
                 .map(RequestMapper::mapToRequestDto)
                 .collect(Collectors.toList());
     }
+
     @Override
     public ItemRequestDto getItemRequestId(long userId, Long requestId) {
         userRepository.findById(userId)

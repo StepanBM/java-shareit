@@ -51,7 +51,7 @@ public class UserControllerTest {
 
     // Создание пользователя
     @Test
-    void AddUserTest() throws Exception {
+    void addUserTest() throws Exception {
 
         NewUserRequest request = new NewUserRequest();
         request.setName("Sergey");
