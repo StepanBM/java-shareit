@@ -93,27 +93,6 @@ public class BookingIntegrationTest {
                 bookingService.addBooking(999L, request));
     }
 
-//    @Test
-//  //  @DisplayName("Попытка добавить бронирование, когда вещь недоступна")
-//    public void testAddBooking_ItemNotAvailable() {
-//        item.setAvailable(false);
-//        itemRepository.save(item);
-//
-//        NewBookingRequest request = new NewBookingRequest();
-//        request.setItemId(item.getId());
-//        request.setStart(LocalDateTime.now().plusDays(1));
-//        request.setEnd(LocalDateTime.now().plusDays(2));
-//        request.setId(2L);
-//
-//        // Ожидаем, что вызов выбросит ValidationException
-//        ValidationException thrown = assertThrows(ValidationException.class, () ->
-//                bookingService.addBooking(booker.getId(), request));
-//
-//        // Убедимся, что исключение было выброшено и содержит ожидаемое сообщение
-//        assertNotNull(thrown.getMessage(), "Сообщение об ошибке не должно быть null");
-//        assertTrue(thrown.getMessage().contains("недоступна для бронирования"));
-//    }
-
     @Test
     public void updateBookingStatusIntegrationTest() {
 

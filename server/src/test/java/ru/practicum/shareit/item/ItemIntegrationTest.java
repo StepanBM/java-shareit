@@ -151,9 +151,6 @@ public class ItemIntegrationTest {
         assertEquals("Anna", commentDto.getAuthorName(), "Имя автора должно совпадать");
         assertNotNull(commentDto.getCreated(), "Дата создания комментария должна быть");
 
-//        assertNotNull(itemCommentDto.getLastBooking());
-//        assertNotNull(itemCommentDto.getNextBooking());
-
         assertThrows(NotFoundException.class, () -> {
             itemController.getItemId(user.getId(), 999L);
         });

@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -14,11 +13,18 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @JsonTest
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ItemCommentDtoJsonTest {
 
     private final JacksonTester<CommentDto> jsonComDto;
     private final JacksonTester<ItemWithCommentDto> jsonItComDto;
+
+    @Autowired
+    public ItemCommentDtoJsonTest(
+            JacksonTester<CommentDto> jsonComDto,
+            JacksonTester<ItemWithCommentDto> jsonItComDto) {
+        this.jsonComDto = jsonComDto;
+        this.jsonItComDto = jsonItComDto;
+    }
 
     @Test
     public void serializeCommentDtoJsonTest() throws Exception {

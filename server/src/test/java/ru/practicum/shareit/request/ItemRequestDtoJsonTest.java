@@ -1,6 +1,5 @@
 package ru.practicum.shareit.request;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -18,11 +17,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @JsonTest
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class ItemRequestDtoJsonTest {
 
     private final JacksonTester<ItemRequestDto> jsonReqDto;
     private final JacksonTester<NewItemRequestDto> jsonNewReqDto;
+
+    @Autowired
+    public ItemRequestDtoJsonTest(
+            JacksonTester<ItemRequestDto> jsonReqDto,
+            JacksonTester<NewItemRequestDto> jsonNewReqDto) {
+        this.jsonReqDto = jsonReqDto;
+        this.jsonNewReqDto = jsonNewReqDto;
+    }
 
     @Test
     public void serializeItemRequestDtoJsonTest() throws Exception {

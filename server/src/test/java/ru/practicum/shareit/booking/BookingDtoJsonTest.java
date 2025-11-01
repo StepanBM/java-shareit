@@ -1,6 +1,5 @@
 package ru.practicum.shareit.booking;
 
-import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
@@ -18,12 +17,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @JsonTest
-@RequiredArgsConstructor(onConstructor = @__(@Autowired))
 public class BookingDtoJsonTest {
 
     private final JacksonTester<BookingDto> jsonBookingDto;
     private final JacksonTester<NewBookingRequest> jsonNewBooking;
     private final JacksonTester<UpdateBookingRequest> jsonUpdBooking;
+
+    @Autowired
+    public BookingDtoJsonTest(
+            JacksonTester<BookingDto> jsonBookingDto,
+            JacksonTester<NewBookingRequest> jsonNewBooking,
+            JacksonTester<UpdateBookingRequest> jsonUpdBooking) {
+        this.jsonBookingDto = jsonBookingDto;
+        this.jsonNewBooking = jsonNewBooking;
+        this.jsonUpdBooking = jsonUpdBooking;
+    }
 
     @Test
     public void serializeBookingDtoJsonTest() throws Exception {
