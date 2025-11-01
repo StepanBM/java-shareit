@@ -9,14 +9,18 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingRequest;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.UserNotFoundException;
+import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -350,6 +354,354 @@ public class BookingIntegrationTest {
         assertEquals(BookingStatus.APPROVED, listBookingDto.get(0).getStatus());
         assertEquals(BookingStatus.WAITING, listBookingDto.get(1).getStatus());
         assertEquals(2, listBookingDto.size());
+    }
+
+    @Test
+    public void findAllBookingOwnerAllStatesIntegrationTest() {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // Текущее бронирование
+        Booking currentBooking = new Booking();
+        currentBooking.setStart(now.minusDays(1));
+        currentBooking.setEnd(now.plusDays(1));
+        currentBooking.setItem(item);
+        currentBooking.setBooker(booker);
+        currentBooking.setStatus(BookingStatus.APPROVED);
+        bookingRepository.save(currentBooking);
+
+        // Будущее бронирование
+        Booking futureBooking = new Booking();
+        futureBooking.setStart(now.plusDays(2));
+        futureBooking.setEnd(now.plusDays(3));
+        futureBooking.setItem(item);
+        futureBooking.setBooker(booker);
+        futureBooking.setStatus(BookingStatus.WAITING);
+        bookingRepository.save(futureBooking);
+
+        // Прошедшее бронирование
+        Booking pastBooking = new Booking();
+        pastBooking.setStart(now.minusDays(5));
+        pastBooking.setEnd(now.minusDays(3));
+        pastBooking.setItem(item);
+        pastBooking.setBooker(booker);
+        pastBooking.setStatus(BookingStatus.REJECTED);
+        bookingRepository.save(pastBooking);
+
+        // Ожидающее подтверждение бронирование
+        Booking waitingBooking = new Booking();
+        waitingBooking.setStart(now.plusHours(1));
+        waitingBooking.setEnd(now.plusDays(1));
+        waitingBooking.setItem(item);
+        waitingBooking.setBooker(booker);
+        waitingBooking.setStatus(BookingStatus.WAITING);
+        bookingRepository.save(waitingBooking);
+
+        // Отклонённое бронирование
+        Booking rejectedBooking = new Booking();
+        rejectedBooking.setStart(now.minusDays(4));
+        rejectedBooking.setEnd(now.minusDays(2));
+        rejectedBooking.setItem(item);
+        rejectedBooking.setBooker(booker);
+        rejectedBooking.setStatus(BookingStatus.REJECTED);
+        bookingRepository.save(rejectedBooking);
+
+        List<BookingDto> result = bookingService.findAllBookingOwner(owner.getId(), BookingState.ALL);
+        assertEquals(5, result.size());
+
+        Set<BookingStatus> statuses = result.stream()
+                .map(BookingDto::getStatus)
+                .collect(Collectors.toSet());
+        assertTrue(statuses.containsAll(Arrays.asList(
+                BookingStatus.APPROVED,
+                BookingStatus.WAITING,
+                BookingStatus.REJECTED
+        )));
+
+        assertThrows(NotFoundException.class, () ->
+                bookingService.findAllBookingOwner(9999L, BookingState.ALL));
+    }
+
+    @Test
+    public void findAllBookingOwnerCurrentIntegrationTest() {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // Текущее бронирование
+        Booking currentBooking = new Booking();
+        currentBooking.setStart(now.minusDays(1));
+        currentBooking.setEnd(now.plusDays(1));
+        currentBooking.setItem(item);
+        currentBooking.setBooker(booker);
+        currentBooking.setStatus(BookingStatus.APPROVED);
+        bookingRepository.save(currentBooking);
+
+        // Будущее бронирование
+        Booking futureBooking = new Booking();
+        futureBooking.setStart(now.plusDays(2));
+        futureBooking.setEnd(now.plusDays(3));
+        futureBooking.setItem(item);
+        futureBooking.setBooker(booker);
+        futureBooking.setStatus(BookingStatus.WAITING);
+        bookingRepository.save(futureBooking);
+
+        // Прошедшее бронирование
+        Booking pastBooking = new Booking();
+        pastBooking.setStart(now.minusDays(5));
+        pastBooking.setEnd(now.minusDays(3));
+        pastBooking.setItem(item);
+        pastBooking.setBooker(booker);
+        pastBooking.setStatus(BookingStatus.REJECTED);
+        bookingRepository.save(pastBooking);
+
+        // Ожидающее подтверждение бронирование
+        Booking waitingBooking = new Booking();
+        waitingBooking.setStart(now.plusHours(1));
+        waitingBooking.setEnd(now.plusDays(1));
+        waitingBooking.setItem(item);
+        waitingBooking.setBooker(booker);
+        waitingBooking.setStatus(BookingStatus.WAITING);
+        bookingRepository.save(waitingBooking);
+
+        // Отклонённое бронирование
+        Booking rejectedBooking = new Booking();
+        rejectedBooking.setStart(now.minusDays(4));
+        rejectedBooking.setEnd(now.minusDays(2));
+        rejectedBooking.setItem(item);
+        rejectedBooking.setBooker(booker);
+        rejectedBooking.setStatus(BookingStatus.REJECTED);
+        bookingRepository.save(rejectedBooking);
+
+        List<BookingDto> result = bookingService.findAllBookingOwner(owner.getId(), BookingState.CURRENT);
+        assertEquals(1, result.size());
+        assertEquals(BookingStatus.APPROVED, result.get(0).getStatus());
+    }
+
+    @Test
+    public void findAllBookingOwnerFutureIntegrationTest() {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // Текущее бронирование
+        Booking currentBooking = new Booking();
+        currentBooking.setStart(now.minusDays(1));
+        currentBooking.setEnd(now.plusDays(1));
+        currentBooking.setItem(item);
+        currentBooking.setBooker(booker);
+        currentBooking.setStatus(BookingStatus.APPROVED);
+        bookingRepository.save(currentBooking);
+
+        // Будущее бронирование
+        Booking futureBooking = new Booking();
+        futureBooking.setStart(now.plusDays(2));
+        futureBooking.setEnd(now.plusDays(3));
+        futureBooking.setItem(item);
+        futureBooking.setBooker(booker);
+        futureBooking.setStatus(BookingStatus.WAITING);
+        bookingRepository.save(futureBooking);
+
+        // Прошедшее бронирование
+        Booking pastBooking = new Booking();
+        pastBooking.setStart(now.minusDays(5));
+        pastBooking.setEnd(now.minusDays(3));
+        pastBooking.setItem(item);
+        pastBooking.setBooker(booker);
+        pastBooking.setStatus(BookingStatus.REJECTED);
+        bookingRepository.save(pastBooking);
+
+        // Ожидающее подтверждение бронирование
+        Booking waitingBooking = new Booking();
+        waitingBooking.setStart(now.plusHours(1));
+        waitingBooking.setEnd(now.plusDays(1));
+        waitingBooking.setItem(item);
+        waitingBooking.setBooker(booker);
+        waitingBooking.setStatus(BookingStatus.WAITING);
+        bookingRepository.save(waitingBooking);
+
+        // Отклонённое бронирование
+        Booking rejectedBooking = new Booking();
+        rejectedBooking.setStart(now.minusDays(4));
+        rejectedBooking.setEnd(now.minusDays(2));
+        rejectedBooking.setItem(item);
+        rejectedBooking.setBooker(booker);
+        rejectedBooking.setStatus(BookingStatus.REJECTED);
+        bookingRepository.save(rejectedBooking);
+
+        List<BookingDto> result = bookingService.findAllBookingOwner(owner.getId(), BookingState.FUTURE);
+        assertEquals(2, result.size());
+        assertEquals(BookingStatus.WAITING, result.get(0).getStatus());
+    }
+
+    @Test
+    public void findAllBookingOwnerPastIntegrationTest() {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // Текущее бронирование
+        Booking currentBooking = new Booking();
+        currentBooking.setStart(now.minusDays(1));
+        currentBooking.setEnd(now.plusDays(1));
+        currentBooking.setItem(item);
+        currentBooking.setBooker(booker);
+        currentBooking.setStatus(BookingStatus.APPROVED);
+        bookingRepository.save(currentBooking);
+
+        // Будущее бронирование
+        Booking futureBooking = new Booking();
+        futureBooking.setStart(now.plusDays(2));
+        futureBooking.setEnd(now.plusDays(3));
+        futureBooking.setItem(item);
+        futureBooking.setBooker(booker);
+        futureBooking.setStatus(BookingStatus.WAITING);
+        bookingRepository.save(futureBooking);
+
+        // Прошедшее бронирование
+        Booking pastBooking = new Booking();
+        pastBooking.setStart(now.minusDays(5));
+        pastBooking.setEnd(now.minusDays(3));
+        pastBooking.setItem(item);
+        pastBooking.setBooker(booker);
+        pastBooking.setStatus(BookingStatus.REJECTED);
+        bookingRepository.save(pastBooking);
+
+        // Ожидающее подтверждение бронирование
+        Booking waitingBooking = new Booking();
+        waitingBooking.setStart(now.plusHours(1));
+        waitingBooking.setEnd(now.plusDays(1));
+        waitingBooking.setItem(item);
+        waitingBooking.setBooker(booker);
+        waitingBooking.setStatus(BookingStatus.WAITING);
+        bookingRepository.save(waitingBooking);
+
+        // Отклонённое бронирование
+        Booking rejectedBooking = new Booking();
+        rejectedBooking.setStart(now.minusDays(4));
+        rejectedBooking.setEnd(now.minusDays(2));
+        rejectedBooking.setItem(item);
+        rejectedBooking.setBooker(booker);
+        rejectedBooking.setStatus(BookingStatus.REJECTED);
+        bookingRepository.save(rejectedBooking);
+
+        List<BookingDto> result = bookingService.findAllBookingOwner(owner.getId(), BookingState.PAST);
+        assertEquals(2, result.size());
+        assertEquals(BookingStatus.REJECTED, result.get(0).getStatus());
+    }
+
+    @Test
+    public void findAllBookingOwnerWaitingIntegrationTest() {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // Текущее бронирование
+        Booking currentBooking = new Booking();
+        currentBooking.setStart(now.minusDays(1));
+        currentBooking.setEnd(now.plusDays(1));
+        currentBooking.setItem(item);
+        currentBooking.setBooker(booker);
+        currentBooking.setStatus(BookingStatus.APPROVED);
+        bookingRepository.save(currentBooking);
+
+        // Будущее бронирование
+        Booking futureBooking = new Booking();
+        futureBooking.setStart(now.plusDays(2));
+        futureBooking.setEnd(now.plusDays(3));
+        futureBooking.setItem(item);
+        futureBooking.setBooker(booker);
+        futureBooking.setStatus(BookingStatus.WAITING);
+        bookingRepository.save(futureBooking);
+
+        // Прошедшее бронирование
+        Booking pastBooking = new Booking();
+        pastBooking.setStart(now.minusDays(5));
+        pastBooking.setEnd(now.minusDays(3));
+        pastBooking.setItem(item);
+        pastBooking.setBooker(booker);
+        pastBooking.setStatus(BookingStatus.REJECTED);
+        bookingRepository.save(pastBooking);
+
+        // Ожидающее подтверждение бронирование
+        Booking waitingBooking = new Booking();
+        waitingBooking.setStart(now.plusHours(1));
+        waitingBooking.setEnd(now.plusDays(1));
+        waitingBooking.setItem(item);
+        waitingBooking.setBooker(booker);
+        waitingBooking.setStatus(BookingStatus.WAITING);
+        bookingRepository.save(waitingBooking);
+
+        // Отклонённое бронирование
+        Booking rejectedBooking = new Booking();
+        rejectedBooking.setStart(now.minusDays(4));
+        rejectedBooking.setEnd(now.minusDays(2));
+        rejectedBooking.setItem(item);
+        rejectedBooking.setBooker(booker);
+        rejectedBooking.setStatus(BookingStatus.REJECTED);
+        bookingRepository.save(rejectedBooking);
+
+        List<BookingDto> result = bookingService.findAllBookingOwner(owner.getId(), BookingState.WAITING);
+        assertEquals(2, result.size());
+        assertEquals(BookingStatus.WAITING, result.get(0).getStatus());
+    }
+
+    @Test
+    public void findAllBookingOwnerRejectedIntegrationTest() {
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // Текущее бронирование
+        Booking currentBooking = new Booking();
+        currentBooking.setStart(now.minusDays(1));
+        currentBooking.setEnd(now.plusDays(1));
+        currentBooking.setItem(item);
+        currentBooking.setBooker(booker);
+        currentBooking.setStatus(BookingStatus.APPROVED);
+        bookingRepository.save(currentBooking);
+
+        // Будущее бронирование
+        Booking futureBooking = new Booking();
+        futureBooking.setStart(now.plusDays(2));
+        futureBooking.setEnd(now.plusDays(3));
+        futureBooking.setItem(item);
+        futureBooking.setBooker(booker);
+        futureBooking.setStatus(BookingStatus.WAITING);
+        bookingRepository.save(futureBooking);
+
+        // Прошедшее бронирование
+        Booking pastBooking = new Booking();
+        pastBooking.setStart(now.minusDays(5));
+        pastBooking.setEnd(now.minusDays(3));
+        pastBooking.setItem(item);
+        pastBooking.setBooker(booker);
+        pastBooking.setStatus(BookingStatus.REJECTED);
+        bookingRepository.save(pastBooking);
+
+        // Ожидающее подтверждение бронирование
+        Booking waitingBooking = new Booking();
+        waitingBooking.setStart(now.plusHours(1));
+        waitingBooking.setEnd(now.plusDays(1));
+        waitingBooking.setItem(item);
+        waitingBooking.setBooker(booker);
+        waitingBooking.setStatus(BookingStatus.WAITING);
+        bookingRepository.save(waitingBooking);
+
+        // Отклонённое бронирование
+        Booking rejectedBooking = new Booking();
+        rejectedBooking.setStart(now.minusDays(4));
+        rejectedBooking.setEnd(now.minusDays(2));
+        rejectedBooking.setItem(item);
+        rejectedBooking.setBooker(booker);
+        rejectedBooking.setStatus(BookingStatus.REJECTED);
+        bookingRepository.save(rejectedBooking);
+
+        List<BookingDto> result = bookingService.findAllBookingOwner(owner.getId(), BookingState.REJECTED);
+        assertEquals(2, result.size());
+        assertEquals(BookingStatus.REJECTED, result.get(0).getStatus());
+    }
+
+    @Test
+    public void testFindAllBookingOwner_InvalidState() {
+        // Проверка, что при некорректном состоянии выбрасывается исключение
+        assertThrows(ValidationException.class, () ->
+                bookingService.findAllBookingOwner(owner.getId(), null));
     }
 
 }
