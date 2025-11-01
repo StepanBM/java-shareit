@@ -76,8 +76,7 @@ public class UserControllerTest {
     // Запрос на список всех пользователей
     @Test
     void findAllUsersTest() throws Exception {
-
-        // Мокаем поведение сервиса
+        
         Mockito
                 .when(userService.findAllUsers()).thenReturn(List.of(user1, user2));
 
