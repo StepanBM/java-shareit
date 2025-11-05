@@ -69,8 +69,20 @@ public class ItemRequestIntegrationTest {
         assertEquals("Нужены ролики", requestFromDb.get().getDescription());
         assertEquals(user.getId(), requestFromDb.get().getRequestor().getId());
 
-                assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             itemRequestController.addRequest(999L, newRequestDto);
+        });
+    }
+
+    @Test
+    public void addRequestUserNotFoundErrorIntegrationTest() {
+
+        NewItemRequestDto request = new NewItemRequestDto();
+        request.setDescription("Описание");
+        request.setCreated(LocalDateTime.now());
+
+        assertThrows(NotFoundException.class, () -> {
+            requestService.addRequest(999L, request);
         });
     }
 
@@ -130,10 +142,32 @@ public class ItemRequestIntegrationTest {
         assertEquals(1, slavaRequests.size());
         assertEquals("Запрос для Slava", slavaRequests.get(0).getDescription());
 
-                assertThrows(NotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             itemRequestController.getItemRequestId(user.getId(), 999L);
         });
 
+    }
+
+    @Test
+    public void getRequestsUserIdUserNotFoundErrorIntegrationTest() {
+
+        assertThrows(NotFoundException.class, () -> {
+            requestService.getRequestsUserId(999L);
+        });
+    }
+
+    @Test
+    public void getRequestsUserIdEmptyRequestsIntegrationTest() {
+
+        User newUser = new User();
+        newUser.setName("Daga");
+        newUser.setEmail("dag777@mail.com");
+        userRepository.save(newUser);
+
+        List<ItemRequestDto> requests = requestService.getRequestsUserId(newUser.getId());
+
+        assertNotNull(requests);
+        assertEquals(0, requests.size());
     }
 
     @Test
@@ -151,6 +185,30 @@ public class ItemRequestIntegrationTest {
         assertEquals(requestDto1.getId(), requestDto2.getId());
         assertEquals("Требуется чайный сервиз", requestDto2.getDescription());
         assertNotNull(requestDto2.getCreated());
+    }
+
+    @Test
+    public void getItemRequestIdRequestNotFoundIntegrationTest() {
+
+        assertThrows(NotFoundException.class, () -> {
+            requestService.getItemRequestId(user.getId(), 999L);
+        });
+    }
+
+    @Test
+    public void getItemRequestIdUserNotFoundIntegrationTest() {
+
+        NewItemRequestDto request = new NewItemRequestDto();
+        request.setDescription("Описание");
+        request.setCreated(LocalDateTime.now());
+
+        ItemRequestDto itemRequestDto = requestService.addRequest(user.getId(), request);
+
+        ItemRequest createdRequest = requestRepository.findById(itemRequestDto.getId()).orElseThrow();
+
+        assertThrows(NotFoundException.class, () -> {
+            requestService.getItemRequestId(999L, createdRequest.getId());
+        });
     }
 
 }

@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.NewItemRequestDto;
@@ -64,6 +65,23 @@ public class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.description").value("Нужна куртка"));
+    }
+
+    @Test
+    public void addRequestUserNotFoundError() throws Exception {
+
+        NewItemRequestDto request = new NewItemRequestDto();
+        request.setDescription("Нужна куртка");
+
+        Mockito
+                .when(requestService.addRequest(eq(999L), any(NewItemRequestDto.class)))
+                .thenThrow(new NotFoundException("Пользователь с id " + 999L + " не найден"));
+
+        mvc.perform(post("/requests")
+                        .header("X-Sharer-User-Id", "999")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -142,6 +160,55 @@ public class ItemRequestControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(3))
                 .andExpect(jsonPath("$.description").value("Скоро понадодится гитара"));
+    }
+
+
+    @Test
+    public void getRequestsUserIdUserNotFoundError() throws Exception {
+
+        Mockito
+                .when(requestService.getRequestsUserId(999L))
+                .thenThrow(new NotFoundException("Пользователь с id " + 999L + " не найден"));
+
+        mvc.perform(get("/requests")
+                        .header("X-Sharer-User-Id", "999"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getRequestsUserIdNoRequestsError() throws Exception {
+
+        Mockito
+                .when(requestService.getRequestsUserId(1L)).thenReturn(Collections.emptyList());
+
+        mvc.perform(get("/requests")
+                        .header("X-Sharer-User-Id", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(0));
+    }
+
+    @Test
+    public void getItemRequestIdRequestNotFoundError404() throws Exception {
+
+        Mockito
+                .when(requestService.getItemRequestId(1L, 999L))
+                .thenThrow(new NotFoundException("Данный запрос не найден"));
+
+        mvc.perform(get("/requests/999")
+                        .header("X-Sharer-User-Id", "1"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void getItemRequestIdUserNotFoundError404() throws Exception {
+
+        Mockito
+                .when(requestService.getItemRequestId(999L, 1L))
+                .thenThrow(new NotFoundException("Данный пользователь не найден"));
+
+        mvc.perform(get("/requests/1")
+                        .header("X-Sharer-User-Id", "999"))
+                .andExpect(status().isNotFound());
     }
 
 }

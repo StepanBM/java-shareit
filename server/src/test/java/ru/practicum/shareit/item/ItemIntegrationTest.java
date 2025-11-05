@@ -78,6 +78,33 @@ public class ItemIntegrationTest {
     }
 
     @Test
+    public void addItemUserNotFoundIntegrationTest() {
+        NewItemRequest request = new NewItemRequest();
+        request.setName("Насос");
+        request.setDescription("Новый");
+        request.setAvailable(true);
+        request.setOwnerId(999L);
+
+        assertThrows(NotFoundException.class, () -> {
+            itemService.addItem(request);
+        });
+    }
+
+    @Test
+    public void addItemRequestNotFoundIntegrationTest() {
+        NewItemRequest request = new NewItemRequest();
+        request.setName("Насос");
+        request.setDescription("Новый");
+        request.setAvailable(true);
+        request.setOwnerId(user.getId());
+        request.setRequestId(999L);
+
+        assertThrows(NotFoundException.class, () -> {
+            itemService.addItem(request);
+        });
+    }
+
+    @Test
     public void findAllItemsIntegrationTest() {
 
         Item item = new Item();
@@ -128,13 +155,21 @@ public class ItemIntegrationTest {
         commentRepository.save(comment);
 
         // Бронирование, для того чтобы пользователь мог оставить комментарий
-        Booking booking = new Booking();
-        booking.setItem(item);
-        booking.setBooker(author);
-        booking.setStart(LocalDateTime.now().minusDays(25));
-        booking.setEnd(LocalDateTime.now().minusDays(10));
-        booking.setStatus(BookingStatus.APPROVED);
-        bookingRepository.save(booking);
+        Booking pastBooking  = new Booking();
+        pastBooking.setItem(item);
+        pastBooking.setBooker(author);
+        pastBooking.setStart(LocalDateTime.now().minusDays(25));
+        pastBooking.setEnd(LocalDateTime.now().minusDays(10));
+        pastBooking.setStatus(BookingStatus.APPROVED);
+        bookingRepository.save(pastBooking);
+
+        Booking futureBooking = new Booking();
+        futureBooking.setItem(item);
+        futureBooking.setBooker(user);
+        futureBooking.setStart(LocalDateTime.now().plusDays(10));
+        futureBooking.setEnd(LocalDateTime.now().plusDays(25));
+        futureBooking.setStatus(BookingStatus.APPROVED);
+        bookingRepository.save(futureBooking);
 
         ItemWithCommentDto itemCommentDto = itemController.getItemId(user.getId(), item.getId());
 
@@ -151,9 +186,34 @@ public class ItemIntegrationTest {
         assertEquals("Anna", commentDto.getAuthorName(), "Имя автора должно совпадать");
         assertNotNull(commentDto.getCreated(), "Дата создания комментария должна быть");
 
+        assertNotNull(itemCommentDto.getLastBooking());
+        assertNotNull(itemCommentDto.getNextBooking());
+    }
+
+    @Test
+    public void getItemIdNotFoundIntegrationTest() {
         assertThrows(NotFoundException.class, () -> {
-            itemController.getItemId(user.getId(), 999L);
+            itemService.getItemId(user.getId(), 999L);
         });
+    }
+
+    @Test
+    public void getItemIdNoCommentsIntegrationTest() {
+
+        Item newItem = new Item();
+        newItem.setName("Без комментариев");
+        newItem.setDescription("Нет комментариев");
+        newItem.setAvailable(true);
+        newItem.setOwner(user);
+        itemRepository.save(newItem);
+
+        ItemWithCommentDto itemCommentDto = itemService.getItemId(user.getId(), newItem.getId());
+
+        assertNotNull(itemCommentDto);
+        assertEquals(newItem.getId(), itemCommentDto.getId());
+        assertTrue(itemCommentDto.getComments().isEmpty());
+        assertNull(itemCommentDto.getLastBooking());
+        assertNull(itemCommentDto.getNextBooking());
     }
 
     @Test
@@ -192,6 +252,68 @@ public class ItemIntegrationTest {
     }
 
     @Test
+    public void updateItemNewNameIntegrationTest() {
+
+        Item item = new Item();
+        item.setName("Кружка");
+        item.setDescription("Большая");
+        item.setAvailable(true);
+        item.setOwner(user);
+        itemRepository.save(item);
+
+        UpdateItemRequest request = new UpdateItemRequest();
+        request.setId(item.getId());
+        request.setName("Бокал");
+        request.setDescription(null);
+        request.setAvailable(null);
+        request.setOwnerId(user.getId());
+
+        ItemDto updatedDto = itemService.updateItem(request);
+
+        assertEquals("Бокал", updatedDto.getName());
+
+        Item entity = itemRepository.findById(item.getId()).orElseThrow();
+        assertEquals("Бокал", entity.getName());
+        assertEquals("Большая", entity.getDescription());
+    }
+
+    @Test
+    public void updateItemNotFoundIntegrationTest() {
+        UpdateItemRequest request = new UpdateItemRequest();
+        request.setId(999L);
+        request.setName("Name");
+        request.setOwnerId(user.getId());
+
+        assertThrows(NotFoundException.class, () -> {
+            itemService.updateItem(request);
+        });
+    }
+
+    @Test
+    public void updateItemNotUserIntegrationTest() {
+        Item item = new Item();
+        item.setName("Кружка");
+        item.setDescription("Большая");
+        item.setAvailable(true);
+        item.setOwner(user);
+        itemRepository.save(item);
+
+        User strangerUser = new User();
+        strangerUser.setName("Bob");
+        strangerUser.setEmail("bobobo@mail.com");
+        userRepository.save(strangerUser);
+
+        UpdateItemRequest request = new UpdateItemRequest();
+        request.setId(item.getId());
+        request.setName("Какаята вещь");
+        request.setOwnerId(strangerUser.getId());
+
+        assertThrows(NotFoundException.class, () -> {
+            itemService.updateItem(request);
+        });
+    }
+
+    @Test
     public void searchItemsIntegrationTest() {
 
         Item item = new Item();
@@ -209,6 +331,52 @@ public class ItemIntegrationTest {
         assertThrows(NotFoundException.class, () -> {
             itemController.searchItems(999L, "электро");
         });
+    }
+
+    @Test
+    public void searchItemsEmptyListIfNoMatchIntegrationTest() {
+
+        Item item = new Item();
+        item.setName("Электро гитара");
+        item.setDescription("Качественный звук");
+        item.setAvailable(true);
+        item.setOwner(user);
+        itemRepository.save(item);
+
+        List<ItemDto> listItemDto = itemService.searchItems(user.getId(), "wertyuij");
+        assertNotNull(listItemDto);
+        assertTrue(listItemDto.isEmpty());
+    }
+
+    @Test
+    public void searchItemsUserNotFoundIntegrationTest() {
+
+        Item item = new Item();
+        item.setName("Электро гитара");
+        item.setDescription("Качественный звук");
+        item.setAvailable(true);
+        item.setOwner(user);
+        itemRepository.save(item);
+
+        assertThrows(NotFoundException.class, () -> {
+            itemService.searchItems(999L, "гитара");
+        });
+    }
+
+    @Test
+    public void searchItemsRegisterQueryIntegrationTest() {
+
+        Item item = new Item();
+        item.setName("Электро гитара");
+        item.setDescription("Качественный звук");
+        item.setAvailable(true);
+        item.setOwner(user);
+        itemRepository.save(item);
+
+        List<ItemDto> listItemDto = itemService.searchItems(user.getId(), "ЭЛЕКТРО");
+
+        assertEquals(1, listItemDto.size());
+        assertEquals("Электро гитара", listItemDto.get(0).getName());
     }
 
     @Test
@@ -255,6 +423,62 @@ public class ItemIntegrationTest {
         assertEquals("Очень удобный и красивый", comment.getText(), "Текст комментария в базе данных должен совпадать");
         assertEquals(author.getId(), comment.getAuthorName().getId(), "id автора в базе данных должен совпадать");
         assertEquals(item.getId(), comment.getItem().getId(), "id вещи в базе данных должен совпадать");
+    }
+
+    @Test
+    public void addCommentUserNotFoundIntegrationTest() {
+        Item item = new Item();
+        item.setName("Стул");
+        item.setDescription("Красное дерево");
+        item.setAvailable(true);
+        item.setOwner(user);
+        itemRepository.save(item);
+
+        NewCommentRequest request = new NewCommentRequest();
+        request.setUserId(999L);
+        request.setItemId(item.getId());
+        request.setText("Супер");
+
+        assertThrows(NotFoundException.class, () -> {
+            itemService.addComment(999L, request, item.getId());
+        });
+    }
+
+    @Test
+    public void addCommentItemNotFoundIntegrationTest() {
+        NewCommentRequest request = new NewCommentRequest();
+        request.setUserId(user.getId());
+        request.setItemId(999L);
+        request.setText("Супер");
+
+        assertThrows(NotFoundException.class, () -> {
+            itemService.addComment(user.getId(), request, 999L);
+        });
+    }
+
+    @Test
+    public void addCommentUserNotBrokeItemIntegrationTest() {
+        // Создаем пользователя без бронирования
+        User newUser = new User();
+        newUser.setName("Sava");
+        newUser.setEmail("sava999@mail.com");
+        userRepository.save(newUser);
+
+        Item item = new Item();
+        item.setName("Стул");
+        item.setDescription("Красное дерево");
+        item.setAvailable(true);
+        item.setOwner(user);
+        itemRepository.save(item);
+
+        NewCommentRequest request = new NewCommentRequest();
+        request.setUserId(newUser.getId());
+        request.setItemId(item.getId());
+        request.setText("Супер");
+
+        assertThrows(IllegalStateException.class, () -> {
+            itemService.addComment(newUser.getId(), request, item.getId());
+        });
     }
 
 }

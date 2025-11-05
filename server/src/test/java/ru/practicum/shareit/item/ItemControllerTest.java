@@ -8,15 +8,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.dto.*;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -66,6 +68,26 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.name").value("Наушники"))
                 .andExpect(jsonPath("$.description").value("Описание наушников"));
 
+    }
+
+    @Test
+    public void addItemUserNotFoundError() throws Exception {
+
+        NewItemRequest request = new NewItemRequest();
+        request.setName("Вещь");
+        request.setDescription("Хорошая вещь");
+        request.setAvailable(true);
+        request.setRequestId(1L);
+
+        Mockito
+                .when(itemService.addItem(any()))
+                .thenThrow(new NotFoundException("Пользователь с id " + 999L + " не найден"));
+
+        mvc.perform(post("/items")
+                        .header("X-Sharer-User-Id", "999")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
     }
 
     // Получение всех вещей
@@ -181,6 +203,18 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.comments[0].created").value("2025-11-02T15:00:00"));
     }
 
+    @Test
+    public void getItemIdItemNotFoundError404() throws Exception {
+
+        Mockito
+                .when(itemService.getItemId(100L, 99L))
+                .thenThrow(new NotFoundException("Данная вещь не найдена или не принадлежит данному пользователю"));
+
+        mvc.perform(get("/items/99")
+                        .header("X-Sharer-User-Id", "100"))
+                .andExpect(status().isNotFound());
+    }
+
     // Обновление вещи
     @Test
     public void updateItemTest() throws Exception {
@@ -217,6 +251,25 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.ownerId").value(3));
     }
 
+    @Test
+    public void updateItemNotFoundError() throws Exception {
+
+        Mockito
+                .when(itemService.updateItem(any()))
+                .thenThrow(new NotFoundException("Данная вещь не найдена или не принадлежит данному пользователю"));
+
+        UpdateItemRequest updateRequest = new UpdateItemRequest();
+        updateRequest.setName("Bob");
+        updateRequest.setDescription("Описание");
+        updateRequest.setAvailable(true);
+
+        mvc.perform(patch("/items/5")
+                        .header("X-Sharer-User-Id", "10")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isNotFound());
+    }
+
     // Поиск вещи
     @Test
     void searchItemsTest() throws Exception {
@@ -242,7 +295,7 @@ public class ItemControllerTest {
         List<ItemDto> items = Arrays.asList(item1, item2);
 
         Mockito
-                .when(itemService.searchItems(1L,"выключатель")).thenReturn(items);
+                .when(itemService.searchItems(1L, "выключатель")).thenReturn(items);
 
         mvc.perform(get("/items/search")
                         .header("X-Sharer-User-Id", 1L)
@@ -255,6 +308,32 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("[0].name").value("Выключатель одинарный"))
                 .andExpect(jsonPath("[1].id").value(2))
                 .andExpect(jsonPath("[1].name").value("Выключатель двойной"));
+    }
+
+    @Test
+    public void searchItemsUserNotFoundError404() throws Exception {
+        Mockito
+                .when(itemService.searchItems(anyLong(), anyString()))
+                .thenThrow(new NotFoundException("Данного пользователя не получилось найти"));
+
+        mvc.perform(get("/items/search")
+                        .header("X-Sharer-User-Id", 999L)
+                        .param("text", "выключатель"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void searchItemsNoResultsErrorEmpty() throws Exception {
+        Mockito
+                .when(itemService.searchItems(anyLong(), anyString()))
+                .thenReturn(Collections.emptyList());
+
+        mvc.perform(get("/items/search")
+                        .header("X-Sharer-User-Id", 5L)
+                        .param("text", "поиск"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
     }
 
     // Создание комментария
@@ -286,6 +365,60 @@ public class ItemControllerTest {
                 .andExpect(jsonPath("$.text").value("Полезный комментарий"))
                 .andExpect(jsonPath("$.authorName").value("Slava"))
                 .andExpect(jsonPath("$.created").value("2025-07-03T12:10:00"));
+    }
+
+    @Test
+    public void addCommentUserNotFoundError404() throws Exception {
+        Mockito
+                .when(itemService.addComment(anyLong(), any(), anyLong()))
+                .thenThrow(new NotFoundException("Данного пользователя не получилось найти"));
+
+        NewCommentRequest request = new NewCommentRequest();
+        request.setUserId(999L);
+        request.setItemId(1L);
+        request.setText("Интересная");
+
+        mvc.perform(post("/items/1/comment")
+                        .header("X-Sharer-User-Id", 999L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void addCommentItemNotFoundError404() throws Exception {
+        Mockito
+                .when(itemService.addComment(anyLong(), any(), anyLong()))
+                .thenThrow(new NotFoundException("Днную вещь не получилось найти"));
+
+        NewCommentRequest request = new NewCommentRequest();
+        request.setUserId(1L);
+        request.setItemId(999L);
+        request.setText("Интересная");
+
+        mvc.perform(post("/items/999/comment")
+                        .header("X-Sharer-User-Id", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(request)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void addCommentUserNotBrokeItemError500() throws Exception {
+        Mockito
+                .when(itemService.addComment(anyLong(), any(), anyLong()))
+                .thenThrow(new IllegalStateException("Пользователь не брал данную вещь"));
+
+        NewCommentRequest request = new NewCommentRequest();
+        request.setUserId(1L);
+        request.setItemId(100L);
+        request.setText("Интересная");
+
+        mvc.perform(post("/items/100/comment")
+                        .header("X-Sharer-User-Id", 1L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(mapper.writeValueAsString(request)))
+                .andExpect(status().isInternalServerError());
     }
 
 }

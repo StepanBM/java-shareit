@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingRequest;
+import ru.practicum.shareit.exceptions.AccessDeniedException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.exceptions.UserNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
@@ -98,6 +99,47 @@ public class BookingIntegrationTest {
     }
 
     @Test
+    public void addBookingUserNotFoundIntegrationTest() {
+
+        NewBookingRequest request = new NewBookingRequest();
+        request.setStart(LocalDateTime.now().plusDays(1));
+        request.setEnd(LocalDateTime.now().plusDays(2));
+        request.setItemId(item.getId());
+
+        assertThrows(NotFoundException.class, () -> {
+            bookingService.addBooking(999L, request);
+        });
+    }
+
+    @Test
+    public void addBookingItemNotFoundIntegrationTest() {
+
+        NewBookingRequest request = new NewBookingRequest();
+        request.setStart(LocalDateTime.now().plusDays(1));
+        request.setEnd(LocalDateTime.now().plusDays(2));
+        request.setItemId(999L);
+
+        assertThrows(NotFoundException.class, () -> {
+            bookingService.addBooking(booker.getId(), request);
+        });
+    }
+
+    @Test
+    public void addBookingItemNotAvailableIntegrationTest() {
+        item.setAvailable(false);
+        itemRepository.save(item);
+
+        NewBookingRequest request = new NewBookingRequest();
+        request.setItemId(item.getId());
+        request.setStart(LocalDateTime.now().plusDays(1));
+        request.setEnd(LocalDateTime.now().plusDays(2));
+
+        assertThrows(ValidationException.class, () -> {
+            bookingService.addBooking(booker.getId(), request);
+        });
+    }
+
+    @Test
     public void updateBookingStatusIntegrationTest() {
 
         Booking booking = new Booking();
@@ -144,6 +186,51 @@ public class BookingIntegrationTest {
     }
 
     @Test
+    public void updateBookingUserNotFoundIntegrationTest() {
+        Booking booking = new Booking();
+        booking.setStart(LocalDateTime.now().plusDays(1));
+        booking.setEnd(LocalDateTime.now().plusDays(2));
+        booking.setItem(item);
+        booking.setBooker(booker);
+        booking.setStatus(BookingStatus.WAITING);
+        bookingRepository.save(booking);
+
+        assertThrows(UserNotFoundException.class, () -> {
+            bookingService.updateBooking(999L, booking.getId(), true);
+        });
+    }
+
+    @Test
+    public void updateBookingNotFoundIntegrationTest() {
+
+        assertThrows(NotFoundException.class, () -> {
+            bookingService.updateBooking(owner.getId(), 999L, true);
+        });
+    }
+
+    @Test
+    public void updateBookingAccessDeniedIntegrationTest() {
+
+        User otherUser = new User();
+        otherUser.setName("Marina");
+        otherUser.setEmail("Marrrrr@mail.com");
+        otherUser = userRepository.save(otherUser);
+
+        Booking booking = new Booking();
+        booking.setStart(LocalDateTime.now().plusDays(1));
+        booking.setEnd(LocalDateTime.now().plusDays(2));
+        booking.setItem(item);
+        booking.setBooker(booker);
+        booking.setStatus(BookingStatus.WAITING);
+        bookingRepository.save(booking);
+
+        User finalOtherUser = otherUser;
+        assertThrows(AccessDeniedException.class, () -> {
+            bookingService.updateBooking(finalOtherUser.getId(), booking.getId(), true);
+        });
+    }
+
+    @Test
     public void getBookingIntegrationTest() {
 
         Booking booking = new Booking();
@@ -162,8 +249,30 @@ public class BookingIntegrationTest {
         assertEquals(booking.getItem().getId(), bookingDto.getItem().getId());
         assertEquals(booking.getBooker().getId(), bookingDto.getBooker().getId());
 
-        assertThrows(NotFoundException.class, () ->
-                bookingService.getBookingId(booker.getId(), 999L));
+    }
+
+    @Test
+    public void getBookingNotFoundIntegrationTest() {
+
+        assertThrows(NotFoundException.class, () -> {
+            bookingService.getBookingId(booker.getId(), 999L);
+        });
+    }
+
+    @Test
+    public void getBookingUserNotFoundIntegrationTest() {
+        Booking booking = new Booking();
+        booking.setStart(LocalDateTime.now().plusDays(1));
+        booking.setEnd(LocalDateTime.now().plusDays(2));
+        booking.setItem(item);
+        booking.setBooker(booker);
+        booking.setStatus(BookingStatus.WAITING);
+        booking = bookingRepository.save(booking);
+
+        Booking finalBooking = booking;
+        assertThrows(NotFoundException.class, () -> {
+            bookingService.getBookingId(999L, finalBooking.getId());
+        });
     }
 
     // Прошедшее бронирование
@@ -354,6 +463,27 @@ public class BookingIntegrationTest {
         assertEquals(BookingStatus.APPROVED, listBookingDto.get(0).getStatus());
         assertEquals(BookingStatus.WAITING, listBookingDto.get(1).getStatus());
         assertEquals(2, listBookingDto.size());
+    }
+
+    @Test
+    public void findAllBookingUserNotFoundIntegrationTest() {
+
+        assertThrows(NotFoundException.class, () ->
+                bookingService.findAllBooking(999L, BookingState.ALL)
+        );
+    }
+
+    @Test
+    public void findAllBookingEmptyResultIntegrationTest() {
+
+        User newUser = new User();
+        newUser.setName("New");
+        newUser.setEmail("new@mail.com");
+        newUser = userRepository.save(newUser);
+
+        List<BookingDto> result = bookingService.findAllBooking(newUser.getId(), BookingState.ALL);
+
+        assertTrue(result.isEmpty());
     }
 
     @Test
@@ -698,10 +828,23 @@ public class BookingIntegrationTest {
     }
 
     @Test
-    public void testFindAllBookingOwner_InvalidState() {
-        // Проверка, что при некорректном состоянии выбрасывается исключение
-        assertThrows(ValidationException.class, () ->
-                bookingService.findAllBookingOwner(owner.getId(), null));
+    public void findAllBookingOwnerUserNotFoundIntegrationTest() {
+
+        assertThrows(NotFoundException.class, () -> {
+            bookingService.findAllBookingOwner(999L, BookingState.ALL);
+        });
+    }
+
+    @Test
+    public void findAllBookingOwnerEmptyResultIntegrationTest() {
+        User newOwner = new User();
+        newOwner.setName("Alex");
+        newOwner.setEmail("aleeex@mail.com");
+        newOwner = userRepository.save(newOwner);
+
+        List<BookingDto> bookingDto = bookingService.findAllBookingOwner(newOwner.getId(), BookingState.ALL);
+
+        assertTrue(bookingDto.isEmpty());
     }
 
 }
