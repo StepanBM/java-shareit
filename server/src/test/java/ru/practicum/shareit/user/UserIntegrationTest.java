@@ -72,8 +72,11 @@ public class UserIntegrationTest {
         Assertions.assertNotNull(users);
         Assertions.assertEquals(2, users.size(), "Количество пользователей правильное.");
 
-        boolean userNama1 = users.stream().anyMatch(u -> u.getName().equals("Sergey"));
-        Assertions.assertTrue(userNama1, "Данный тестовый пользователь должен быть в списке");
+        boolean userName1 = users.stream().anyMatch(u -> u.getName().equals("Sergey"));
+        Assertions.assertTrue(userName1, "Данный тестовый пользователь должен быть в списке");
+
+        boolean userName2 = users.stream().anyMatch(u -> u.getName().equals("Anna"));
+        Assertions.assertTrue(userName2, "Данный тестовый пользователь должен быть в списке");
         boolean userEmail2 = users.stream().anyMatch(u -> u.getEmail().equals("ann1977@mail.com"));
         Assertions.assertTrue(userEmail2, "Данный тестовый пользователь должен быть в списке");
 
