@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingRequest;
 import ru.practicum.shareit.exceptions.AccessDeniedException;
+import ru.practicum.shareit.exceptions.FilterNotFoundException;
 import ru.practicum.shareit.exceptions.ItemUnavailableException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.Item;
@@ -69,7 +70,9 @@ public class BookingServiceImpl implements BookingService {
                     return new NotFoundException("Пользователь с id=" + userId + " не найден");
                 });
         List<Booking> bookings = new ArrayList<>();
-        if (state == BookingState.CURRENT) {
+        if (state == BookingState.ALL) {
+            bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId);
+        } else if (state == BookingState.CURRENT) {
             bookings = bookingRepository.findByBookerIdAndStartLessThanEqualAndEndGreaterThanEqualOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now());
         } else if (state == BookingState.FUTURE) {
             bookings = bookingRepository.findByBookerIdAndStartAfterOrderByStartDesc(userId, LocalDateTime.now());
@@ -80,7 +83,7 @@ public class BookingServiceImpl implements BookingService {
         } else if (state == BookingState.REJECTED) {
             bookings = bookingRepository.findByBookerIdAndStatusEqualsOrderByStartDesc(userId, BookingStatus.REJECTED);
         } else {
-            bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId);
+            throw new FilterNotFoundException("Нет такого состояния фильтра. Фильтр не найден");
         }
         return bookings.stream()
                 .map(BookingMapper::mapToBookingDto)
@@ -130,7 +133,9 @@ public class BookingServiceImpl implements BookingService {
                     return new NotFoundException("Пользователь с id=" + userId + " не найден");
                 });
         List<Booking> bookings = new ArrayList<>();
-         if (state == BookingState.CURRENT) {
+        if (state == BookingState.ALL) {
+            bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(userId);
+        } else if (state == BookingState.CURRENT) {
             bookings = bookingRepository.findByItemOwnerIdAndStartIsBeforeAndEndIsAfterOrderByStartDesc(userId, LocalDateTime.now(), LocalDateTime.now());
         } else if (state == BookingState.FUTURE) {
             bookings = bookingRepository.findByItemOwnerIdAndStartIsAfterOrderByStartDesc(userId, LocalDateTime.now());
@@ -141,7 +146,7 @@ public class BookingServiceImpl implements BookingService {
         } else if (state == BookingState.REJECTED) {
             bookings = bookingRepository.findByItemOwnerIdAndStatusEqualsOrderByStartDesc(userId, BookingStatus.REJECTED);
         } else {
-            bookings = bookingRepository.findByItemOwnerIdOrderByStartDesc(userId);
+            throw new FilterNotFoundException("Нет такого состояния фильтра. Фильтр не найден");
         }
         return bookings.stream()
                 .map(BookingMapper::mapToBookingDto)

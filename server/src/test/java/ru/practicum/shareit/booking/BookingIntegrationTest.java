@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingRequest;
 import ru.practicum.shareit.exceptions.AccessDeniedException;
+import ru.practicum.shareit.exceptions.FilterNotFoundException;
 import ru.practicum.shareit.exceptions.ItemUnavailableException;
 import ru.practicum.shareit.exceptions.NotFoundException;
 import ru.practicum.shareit.item.Item;
