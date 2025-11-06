@@ -8,9 +8,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingRequest;
 import ru.practicum.shareit.exceptions.AccessDeniedException;
-import ru.practicum.shareit.exceptions.FilterNotFoundException;
 import ru.practicum.shareit.exceptions.ItemUnavailableException;
 import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.exceptions.UserNotFoundException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.User;
@@ -468,7 +468,7 @@ public class BookingIntegrationTest {
     @Test
     public void findAllBookingUserNotFoundIntegrationTest() {
 
-        assertThrows(NotFoundException.class, () ->
+        assertThrows(UserNotFoundException.class, () ->
                 bookingService.findAllBooking(999L, BookingState.ALL)
         );
     }

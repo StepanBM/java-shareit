@@ -20,20 +20,33 @@ public class ErrorHandler {
         );
     }
 
-    @ExceptionHandler({ItemUnavailableException.class, DuplicatedDataException.class})
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleDuplicate(final ItemUnavailableException e) {
+        return new ErrorResponse(
+                "Ошибка, объект с такими данными уже существует",
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ErrorResponse handleExceptions(Exception e) {
-        if (e.getClass() == ItemUnavailableException.class) {
-            log.debug("Ошибка, вещь недоступна для бронирования. {}", e.getMessage());
-            return new ErrorResponse("Некорректное значение", "Вещь недоступна для бронирования");
-        } else if (e.getClass() == DuplicatedDataException.class) {
-            log.debug("Ошибка, объект с такими данными уже существует. {}", e.getMessage());
-            return new ErrorResponse(
-                    "Ошибка, объект с такими данными уже существует",
-                    e.getMessage()
-            );
-        }
-        return new ErrorResponse("Ошибка", "Произошла неизвестная ошибка");
+    public ErrorResponse handleDuplicate(final DuplicatedDataException e) {
+        return new ErrorResponse(
+                "Ошибка, объект с такими данными уже существует",
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handleUserNotFound(final UserNotFoundException e) {
+        log.debug("Пользователь не найден. {}", e.getMessage());
+        return new ErrorResponse(
+                "Пользователь не найден",
+                e.getMessage()
+        );
     }
 
     @ExceptionHandler

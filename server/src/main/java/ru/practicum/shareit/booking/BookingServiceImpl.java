@@ -7,10 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingRequest;
-import ru.practicum.shareit.exceptions.AccessDeniedException;
-import ru.practicum.shareit.exceptions.FilterNotFoundException;
-import ru.practicum.shareit.exceptions.ItemUnavailableException;
-import ru.practicum.shareit.exceptions.NotFoundException;
+import ru.practicum.shareit.exceptions.*;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.User;
@@ -67,7 +64,7 @@ public class BookingServiceImpl implements BookingService {
         userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.warn("Ошибка при поиске пользователя. Пользователь с id={} не найден", userId);
-                    return new NotFoundException("Пользователь с id=" + userId + " не найден");
+                    return new UserNotFoundException("Пользователь с id=" + userId + " не найден");
                 });
         List<Booking> bookings = new ArrayList<>();
         if (state == BookingState.ALL) {
