@@ -161,7 +161,7 @@ public class BookingIntegrationTest {
         // Другой пользователь пытается подтвердить
         long otherUserId = owner.getId() + 999;
 
-        assertThrows(NotFoundException.class, () ->
+        assertThrows(UserNotFoundException.class, () ->
                 bookingService.updateBooking(otherUserId, booking.getId(), true));
     }
 
@@ -195,7 +195,7 @@ public class BookingIntegrationTest {
         booking.setStatus(BookingStatus.WAITING);
         bookingRepository.save(booking);
 
-        assertThrows(NotFoundException.class, () -> {
+        assertThrows(UserNotFoundException.class, () -> {
             bookingService.updateBooking(999L, booking.getId(), true);
         });
     }

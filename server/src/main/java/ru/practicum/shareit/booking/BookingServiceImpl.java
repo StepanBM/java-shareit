@@ -92,7 +92,7 @@ public class BookingServiceImpl implements BookingService {
         userRepository.findById(userId)
                 .orElseThrow(() -> {
                     log.warn("Ошибка при поиске пользователя. Пользователь с id={} не найден", userId);
-                    return new NotFoundException("Пользователь с id=" + userId + " не найден");
+                    return new UserNotFoundException("Пользователь с id=" + userId + " не найден");
                 });
 
         Booking booking = bookingRepository.findById(bookingId)

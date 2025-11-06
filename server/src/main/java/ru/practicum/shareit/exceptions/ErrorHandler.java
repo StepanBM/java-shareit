@@ -20,14 +20,18 @@ public class ErrorHandler {
         );
     }
 
-
-    @ExceptionHandler
+    @ExceptionHandler({ItemUnavailableException.class, UserNotFoundException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleDuplicate(final ItemUnavailableException e) {
-        return new ErrorResponse(
-                "Ошибка, объект с такими данными уже существует",
-                e.getMessage()
-        );
+    public ErrorResponse handleExceptions(Exception e) {
+        if (e.getClass() == ItemUnavailableException.class) {
+            return new ErrorResponse("Некорректное значение", "Вещь недоступна для бронирования");
+        } else if (e.getClass() == UserNotFoundException.class) {
+            return new ErrorResponse(
+                    "Пользователь не найден",
+                    e.getMessage()
+            );
+        }
+        return new ErrorResponse("Ошибка", "Произошла неизвестная ошибка");
     }
 
     @ExceptionHandler
@@ -35,16 +39,6 @@ public class ErrorHandler {
     public ErrorResponse handleDuplicate(final DuplicatedDataException e) {
         return new ErrorResponse(
                 "Ошибка, объект с такими данными уже существует",
-                e.getMessage()
-        );
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handleUserNotFound(final UserNotFoundException e) {
-        log.debug("Пользователь не найден. {}", e.getMessage());
-        return new ErrorResponse(
-                "Пользователь не найден",
                 e.getMessage()
         );
     }
