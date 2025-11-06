@@ -26,28 +26,28 @@ public class ItemRequestController {
     @PostMapping
     public ResponseEntity<Object> addRequest(@Positive @NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId,
                                                     @RequestBody @Valid NewItemRequestDto request) {
-       // log.info("Добавляется запрос");
+        log.info("Добавляется запрос");
         request.setCreated(LocalDateTime.now());
         return requestClient.addRequest(userId, request);
     }
 
     @GetMapping("/all")
     public ResponseEntity<Object> findAllRequests() {
-       // log.info("Вывод всех запросов");
+        log.info("Вывод всех запросов");
         return requestClient.findAllRequests();
 
     }
 
     @GetMapping
     public ResponseEntity<Object> getRequestsUserId(@NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId) {
-       // log.info("Получение запросов своих запросов");
+        log.info("Получение запросов своих запросов");
         return requestClient.getRequestsUserId(userId);
     }
 
     @GetMapping("/{requestId}")
     public ResponseEntity<Object> getItemRequestId(@NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId,
                                                  @NotNull @PathVariable long requestId) {
-       //log.info("Получение данных о конкретном запросе");
+       log.info("Получение данных о конкретном запросе");
         return requestClient.getItemRequestId(userId, requestId);
     }
 }

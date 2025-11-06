@@ -42,13 +42,13 @@ public class ItemRequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public ItemRequestDto addRequest(long userId, NewItemRequestDto request) {
-       // log.debug("Начинается добавление запроса {}", request);
+        log.debug("Начинается добавление запроса {}", request);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
         ItemRequest itemRequest = mapToRequest(request);
         itemRequest.setRequestor(user);
         itemRequest = requestRepository.save(itemRequest);
-       // log.debug("Запрос на добавление вещи конвертирован в объект класса Item {}", itemRequest);
+        log.debug("Запрос на добавление вещи конвертирован в объект класса Item {}", itemRequest);
         return RequestMapper.mapToRequestDto(itemRequest);
     }
 

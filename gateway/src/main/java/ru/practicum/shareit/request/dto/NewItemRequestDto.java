@@ -17,10 +17,10 @@ public class NewItemRequestDto {
 
     @NotBlank(message = "Описание не может быть пустым", groups = CreateValidation.class)
     @Length(max = 512, message = "Текст запроса не может привышать длину в 512 символов", groups = CreateValidation.class)
-    String description;
+    private String description;
 
     @Null(message = "Некорректные данные времени создания запроса")
-    LocalDateTime created;
+    private LocalDateTime created;
 
     public Long getRequestId() {
         return requestId;

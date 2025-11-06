@@ -37,11 +37,11 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto addUser(NewUserRequest request) {
-       // log.debug("Начинается добавление пользователя по запросу {}", request);
+        log.debug("Начинается добавление пользователя по запросу {}", request);
         User user = mapToUser(request);
-       // log.debug("Запрос на добавление пользователя конвертирован в объект класса User {}", user);
+        log.debug("Запрос на добавление пользователя конвертирован в объект класса User {}", user);
         user = userRepository.save(user);
-       // log.debug("Добавлен пользователь {}", user);
+        log.debug("Добавлен пользователь {}", user);
         return mapToUserDto(user);
     }
 
@@ -50,7 +50,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(userId)
                 .map(UserMapper::mapToUserDto)
                 .orElseThrow(() -> {
-                   // log.warn("Ошибка при поиске пользователя. Пользователь с id={} не найден", userId);
+                    log.warn("Ошибка при поиске пользователя. Пользователь с id={} не найден", userId);
                     return new NotFoundException("Пользователь с id=" + userId + " не найден");
                 });
     }
@@ -58,23 +58,23 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserDto updateUser(Long userId, UpdateUserRequest request) {
-       // log.debug("Начинается обновление пользователя по запросу {}", request);
+        log.debug("Начинается обновление пользователя по запросу {}", request);
         User updatedUser = userRepository.findById(userId)
                 .map(user -> UserMapper.updateUserFields(user, request))
                 .orElseThrow(() -> {
-                   // log.warn("Ошибка при обновлении пользователя. Пользователь с id={} не найден", userId);
+                    log.warn("Ошибка при обновлении пользователя. Пользователь с id={} не найден", userId);
                     return new NotFoundException("Пользователь с id=" + userId + " не найден");
                 });
-       // log.debug("Запрос на обновление пользователя конвертирован в объект класса User {}", updatedUser);
+        log.debug("Запрос на обновление пользователя конвертирован в объект класса User {}", updatedUser);
         updatedUser = userRepository.save(updatedUser);
-      //  log.debug("Обновлён пользователь {}", updatedUser);
+        log.debug("Обновлён пользователь {}", updatedUser);
         return mapToUserDto(updatedUser);
     }
 
     @Override
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
-       // log.info("Пользователь {} успешно удалён.", id);
+        log.info("Пользователь {} успешно удалён.", id);
     }
 
 }

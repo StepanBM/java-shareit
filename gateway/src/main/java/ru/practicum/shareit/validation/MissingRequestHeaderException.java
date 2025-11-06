@@ -1,4 +1,4 @@
-package ru.practicum.shareit.exceptions;
+package ru.practicum.shareit.validation;
 
 public class MissingRequestHeaderException extends RuntimeException {
     public MissingRequestHeaderException(String message) {

@@ -26,7 +26,7 @@ public class BookingController {
     @PostMapping()
     public ResponseEntity<Object> addBooking(@Positive @NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId,
                                              @Validated(CreateValidation.class) @RequestBody NewBookingRequest request) {
-        //log.info("Добавление бронирования");
+        log.info("Добавление бронирования");
         return bookingClient.addBooking(userId, request);
     }
 
@@ -34,14 +34,14 @@ public class BookingController {
     public ResponseEntity<Object> updateBookingStatus(@Positive @NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId,
                                                       @Positive @PathVariable("bookingId") long bookingId,
                                                       @RequestParam boolean approved) {
-       // log.info("Обновление статуса вещи id={}", bookingId);
+        log.info("Обновление статуса вещи id={}", bookingId);
         return bookingClient.updateBookingStatus(userId, bookingId, approved);
     }
 
     @GetMapping("/{bookingId}")
     public ResponseEntity<Object> getBooking(@Positive @NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId,
                                              @Positive @PathVariable("bookingId") long bookingId) {
-       // log.info("Запрошена информация о вещи id={}", bookingId);
+        log.info("Запрошена информация о вещи id={}", bookingId);
         return bookingClient.getBooking(userId, bookingId);
     }
 
@@ -49,14 +49,14 @@ public class BookingController {
     public ResponseEntity<Object> findAllBooking(@Positive @NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId,
                                                          @RequestParam(defaultValue = "ALL") BookingState state) {
 
-       // log.info("Запрошен список всех бронирований пользователя с id={}", userId);
+        log.info("Запрошен список всех бронирований пользователя с id={}", userId);
         return bookingClient.findAllBooking(userId, state);
     }
 
     @GetMapping("/owner")
     public ResponseEntity<Object> findAllBookingOwner(@Positive @NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId,
                                                          @RequestParam(defaultValue = "ALL") BookingState state) {
-       // log.info("Запрошен список бронирований всех вещей пользователя с id={}", userId);
+        log.info("Запрошен список бронирований всех вещей пользователя с id={}", userId);
         return bookingClient.findAllBookingOwner(userId, state);
     }
 }

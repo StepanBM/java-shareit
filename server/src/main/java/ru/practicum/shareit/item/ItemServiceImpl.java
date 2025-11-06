@@ -79,7 +79,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     @Transactional
     public ItemDto addItem(NewItemRequest request) {
-       // log.debug("Начинается добавление вещи по запросу {}", request);
+        log.debug("Начинается добавление вещи по запросу {}", request);
 
         User user = userRepository.findById(request.getOwnerId())
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + request.getOwnerId() + " не найден"));
@@ -94,9 +94,9 @@ public class ItemServiceImpl implements ItemService {
             item.setRequest(req);
         }
 
-       // log.debug("Запрос на добавление вещи конвертирован в объект класса Item {}", item);
+        log.debug("Запрос на добавление вещи конвертирован в объект класса Item {}", item);
         item = itemRepository.save(item);
-       // log.debug("Добавлена вещь {}", item);
+        log.debug("Добавлена вещь {}", item);
         return mapToItemDto(item);
     }
 
@@ -127,9 +127,9 @@ public class ItemServiceImpl implements ItemService {
         Item existingItem = itemRepository.findByIdAndOwnerId(request.getId(), request.getOwnerId())
                 .orElseThrow(() -> new NotFoundException("Вещь не найдена или не принадлежит владельцу"));
         Item itemToUpdate = updateItemFields(existingItem, request);
-       // log.debug("Начинается обновление вещи на основе данных из DTO по запросу {}", request);
+        log.debug("Начинается обновление вещи на основе данных из DTO по запросу {}", request);
         Item updatedItem = itemRepository.save(itemToUpdate);
-       // log.debug("Обновлена вещь {}", updatedItem);
+        log.debug("Обновлена вещь {}", updatedItem);
         return mapToItemDto(updatedItem);
     }
 
@@ -137,7 +137,7 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> searchItems(long userId, String query) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с данным id= " + userId + " не найден"));
-        //log.debug("Начинается поиск вещи по запросу {}", query);
+        log.debug("Начинается поиск вещи по запросу {}", query);
         String queryLower = "%" + query.toLowerCase() + "%";
         return itemRepository.searchItems(userId, queryLower).stream()
                 .map(ItemMapper::mapToItemDto)

@@ -8,9 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingRequest;
 import ru.practicum.shareit.exceptions.AccessDeniedException;
+import ru.practicum.shareit.exceptions.ItemUnavailableException;
 import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.exceptions.UserNotFoundException;
-import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.User;
@@ -134,7 +133,7 @@ public class BookingIntegrationTest {
         request.setStart(LocalDateTime.now().plusDays(1));
         request.setEnd(LocalDateTime.now().plusDays(2));
 
-        assertThrows(ValidationException.class, () -> {
+        assertThrows(ItemUnavailableException.class, () -> {
             bookingService.addBooking(booker.getId(), request);
         });
     }
@@ -161,7 +160,7 @@ public class BookingIntegrationTest {
         // Другой пользователь пытается подтвердить
         long otherUserId = owner.getId() + 999;
 
-        assertThrows(UserNotFoundException.class, () ->
+        assertThrows(NotFoundException.class, () ->
                 bookingService.updateBooking(otherUserId, booking.getId(), true));
     }
 
@@ -195,7 +194,7 @@ public class BookingIntegrationTest {
         booking.setStatus(BookingStatus.WAITING);
         bookingRepository.save(booking);
 
-        assertThrows(UserNotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             bookingService.updateBooking(999L, booking.getId(), true);
         });
     }

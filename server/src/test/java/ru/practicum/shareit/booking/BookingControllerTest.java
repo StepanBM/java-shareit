@@ -11,9 +11,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingRequest;
 import ru.practicum.shareit.exceptions.AccessDeniedException;
+import ru.practicum.shareit.exceptions.ItemUnavailableException;
 import ru.practicum.shareit.exceptions.NotFoundException;
-import ru.practicum.shareit.exceptions.UserNotFoundException;
-import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -141,13 +140,13 @@ public class BookingControllerTest {
 
         Mockito
                 .when(bookingService.addBooking(anyLong(), any(NewBookingRequest.class)))
-                .thenThrow(new ValidationException("Вещь недоступна", "Запрет на бронирование"));
+                .thenThrow(new ItemUnavailableException("Вещь недоступна. Запрет на бронирование"));
 
         mvc.perform(post("/bookings")
                         .header("X-Sharer-User-Id", "1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(mapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isConflict());
     }
 
     @Test
@@ -201,12 +200,12 @@ public class BookingControllerTest {
     public void updateBookingUserNotFoundTest() throws Exception {
         Mockito
                 .when(bookingService.updateBooking(eq(999L), eq(1L), eq(true)))
-                .thenThrow(new UserNotFoundException("Данный пользователь не найден"));
+                .thenThrow(new NotFoundException("Данный пользователь не найден"));
 
         mvc.perform(patch("/bookings/1")
                         .header("X-Sharer-User-Id", 999L)
                         .param("approved", "true"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound());
     }
 
     @Test
